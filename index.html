@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="EduTrack - Secondary School Management System"/>
+<meta name="theme-color" content="#065F46"/>
+<title>EduTrack - Secondary School Management</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#065F46;--green-mid:#059669;--green-light:#ECFDF5;
+  --teal:#0E7490;--teal-light:#E0F2FE;
+  --amber:#D97706;--amber-light:#FEF3C7;
+  --red:#DC2626;--red-light:#FEF2F2;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+  --slate-50:#F8FAFC;--slate-100:#F1F5F9;--slate-200:#E2E8F0;
+  --slate-400:#94A3B8;--slate-500:#64748B;--slate-700:#334155;
+  --text:#1E293B;--white:#fff;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.1);--shadow-md:0 4px 16px rgba(0,0,0,.12);
+}
+body{font-family:'Segoe UI',Arial,sans-serif;color:var(--text);background:var(--slate-50);min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+.hidden{display:none!important}
+
+/* AUTH */
+#auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#022C22 0%,var(--green) 60%,var(--green-mid) 100%);padding:20px}
+.auth-card{background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-logo-icon{font-size:3rem;display:block;margin-bottom:6px}
+.auth-logo-name{font-size:1.5rem;font-weight:800;color:var(--green)}
+.auth-logo-sub{font-size:.83rem;color:var(--slate-500)}
+.auth-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.auth-desc{font-size:.85rem;color:var(--slate-500);margin-bottom:20px}
+.auth-hint{background:var(--green-light);border-radius:var(--radius-sm);padding:10px 13px;font-size:.82rem;color:var(--green);margin-bottom:18px;border-left:3px solid var(--green)}
+.af{margin-bottom:14px}.af label{display:block;font-size:.82rem;font-weight:600;color:var(--slate-700);margin-bottom:5px}
+.af input,.af select{width:100%;padding:10px 13px;border:1.5px solid var(--slate-200);border-radius:var(--radius-sm);font-size:.93rem;color:var(--text);transition:.15s}
+.af input:focus,.af select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(6,95,70,.13)}
+.af-pw{position:relative}.af-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--slate-400);cursor:pointer;font-size:.9rem}
+.auth-btn{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:1rem;font-weight:700;cursor:pointer;transition:.18s;margin-top:4px}
+.auth-btn:hover{background:#022C22;box-shadow:var(--shadow-md)}
+.auth-link{background:none;border:none;color:var(--green);font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0}
+.auth-err{background:var(--red-light);color:var(--red);border-radius:var(--radius-sm);padding:9px 12px;font-size:.83rem;font-weight:600;margin-bottom:14px}
+.auth-ok{background:var(--green-light);color:var(--green);border-radius:var(--radius-sm);padding:9px 12px;font-size:.83rem;font-weight:600;margin-bottom:14px}
+.pw-bar{height:4px;border-radius:2px;margin-top:5px;transition:.3s;background:var(--slate-200)}
+.pw-lbl{font-size:.74rem;color:var(--slate-400);margin-top:3px}
+
+/* SHELL */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--green);color:#fff;height:56px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tb-brand{font-size:1.1rem;font-weight:800;display:flex;align-items:center;gap:8px}.tb-brand-icon{font-size:1.4rem}
+.tb-user{display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(255,255,255,.12);border-radius:20px;padding:5px 12px 5px 6px;transition:.15s}
+.tb-user:hover{background:rgba(255,255,255,.2)}
+.tb-avatar{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
+.tb-uname{font-size:.82rem;color:rgba(255,255,255,.9)}.tb-signout{font-size:.72rem;color:rgba(255,255,255,.5);margin-left:2px}
+.nav-bottom{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--slate-200);z-index:90;height:60px;padding-bottom:env(safe-area-inset-bottom)}
+.nav-bottom-inner{display:flex;height:100%}
+.nb-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--slate-400);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;transition:.15s;padding:6px 0}
+.nb-btn.active{color:var(--green)}.nb-icon{font-size:1.3rem}
+.layout{display:flex;flex:1}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--slate-200);padding:16px 10px;flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.sb-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate-400);padding:10px 10px 5px;margin-top:10px}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:var(--radius-sm);border:none;background:transparent;text-align:left;font-size:.87rem;font-weight:500;color:var(--slate-700);cursor:pointer;transition:.15s}
+.sb-btn:hover{background:var(--slate-100)}.sb-btn.active{background:var(--green-light);color:var(--green);font-weight:700}.sb-icon{font-size:1.1rem;flex-shrink:0}
+.content{flex:1;padding:20px;overflow-y:auto;min-width:0}
+
+/* COMPONENTS */
+.page-title{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:14px}
+.card-title{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:4px;border-left:4px solid var(--green)}
+.stat.teal{border-left-color:var(--teal)}.stat.amber{border-left-color:var(--amber)}.stat.red{border-left-color:var(--red)}.stat.purple{border-left-color:var(--purple)}
+.stat-num{font-size:1.8rem;font-weight:800;color:var(--text);line-height:1}
+.stat-label{font-size:.73rem;color:var(--slate-500);text-transform:uppercase;letter-spacing:.05em}
+.stat-icon{font-size:1.3rem;margin-bottom:2px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:.87rem;border:none;cursor:pointer;transition:.18s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:#022C22;transform:translateY(-1px)}
+.btn-ghost{background:var(--slate-100);color:var(--slate-700)}.btn-ghost:hover{background:var(--slate-200)}
+.btn-danger{background:var(--red-light);color:var(--red)}.btn-success{background:var(--green-light);color:var(--green)}
+.btn-sm{padding:5px 10px;font-size:.78rem}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.sb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.sb input,.sb select{padding:8px 11px;border:1.5px solid var(--slate-200);border-radius:var(--radius-sm);font-size:.87rem}
+.sb input:focus,.sb select:focus{outline:none;border-color:var(--green)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th{padding:10px 12px;text-align:left;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-500);border-bottom:2px solid var(--slate-200);background:var(--slate-50)}
+td{padding:10px 12px;border-bottom:1px solid var(--slate-100);vertical-align:middle}
+tr:last-child td{border:none}tr:hover td{background:var(--slate-50)}
+.av{width:32px;height:32px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:var(--green);flex-shrink:0}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:.73rem;font-weight:600}
+.badge-green{background:var(--green-light);color:var(--green)}.badge-red{background:var(--red-light);color:var(--red)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}.badge-teal{background:var(--teal-light);color:var(--teal)}
+.badge-purple{background:var(--purple-light);color:var(--purple)}.badge-slate{background:var(--slate-100);color:var(--slate-500)}
+.empty{text-align:center;padding:40px 20px;color:var(--slate-400)}.empty-icon{font-size:2.5rem;margin-bottom:8px}
+.form-group{margin-bottom:13px}.form-group label{display:block;font-size:.82rem;font-weight:600;color:var(--slate-700);margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid var(--slate-200);border-radius:var(--radius-sm);font-size:.9rem}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--green)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.inline-msg{border-radius:var(--radius-sm);padding:9px 12px;font-size:.83rem;font-weight:600;margin-bottom:12px}
+.inline-msg.ok{background:var(--green-light);color:var(--green)}.inline-msg.err{background:var(--red-light);color:var(--red)}.inline-msg.info{background:var(--green-light);color:var(--green)}
+.panel{background:var(--green-light);border:1.5px solid rgba(6,95,70,.2);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.panel-title{font-weight:700;font-size:.95rem;color:var(--green);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.toast{position:fixed;bottom:80px;right:20px;background:var(--text);color:#fff;border-radius:var(--radius-sm);padding:12px 18px;font-size:.85rem;font-weight:500;box-shadow:var(--shadow-md);z-index:500;max-width:300px;transition:opacity .25s,transform .25s}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.hidden{opacity:0;transform:translateY(10px);pointer-events:none}
+/* gradebook */
+.gb-table td input{width:56px;padding:4px 6px;border:1.5px solid var(--slate-200);border-radius:5px;text-align:center;font-size:.85rem}
+.gb-table td input:focus{outline:none;border-color:var(--green)}
+.weight-bar{height:8px;border-radius:4px;background:var(--green-mid);transition:.4s}
+/* result sheet */
+.rs-card{background:linear-gradient(135deg,#022C22 0%,var(--green) 100%);color:#fff;border-radius:16px;padding:24px;margin-bottom:16px}
+.rs-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.rs-table{background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
+.rs-row{display:grid;grid-template-columns:1.4fr 60px 60px 60px 70px 60px 70px;gap:0;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.1);font-size:.82rem}
+.rs-row:last-child{border:none}.rs-row.hd{font-weight:700;opacity:.75;font-size:.72rem;text-transform:uppercase}
+.rs-center{text-align:center;font-weight:600}
+/* co-curricular */
+.activity-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.78rem;font-weight:600;background:var(--green-light);color:var(--green);margin:3px}
+
+@media(max-width:768px){
+  .sidebar{display:none}.nav-bottom{display:block}.content{padding:12px;padding-bottom:70px}
+  .form-row{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}
+  .rs-row{grid-template-columns:1fr 50px 50px 50px 60px 50px 60px;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo"><span class="auth-logo-icon">🏫</span><div class="auth-logo-name">EduTrack</div><div class="auth-logo-sub">Secondary School Management System</div></div>
+    <div id="auth-login">
+      <div class="auth-title">Administrator Login</div>
+      <div class="auth-desc">Sign in to manage your school</div>
+      <div class="auth-hint">Demo: <strong>admin</strong> / <strong>School@456</strong></div>
+      <div id="login-err" class="auth-err hidden"></div>
+      <div class="af"><label>Username</label><input id="l-user" placeholder="Enter username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="af"><label>Password</label><div class="af-pw"><input id="l-pass" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"><button class="af-eye" onclick="togglePw('l-pass',this)">👁</button></div></div>
+      <div style="text-align:right;margin-bottom:14px"><button class="auth-link" onclick="showAuth('forgot')">Forgot password?</button></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+    </div>
+    <div id="auth-forgot" class="hidden">
+      <div class="auth-title">Reset password</div><div class="auth-desc">Enter your username to receive a reset link.</div>
+      <div id="forgot-msg" class="auth-ok hidden"></div><div id="forgot-err" class="auth-err hidden"></div>
+      <div class="af"><label>Username</label><input id="f-user" placeholder="Enter your username" onkeydown="if(event.key==='Enter')doForgot()"></div>
+      <button class="auth-btn" id="forgot-btn" onclick="doForgot()">Send Reset Link</button>
+      <div style="text-align:center;margin-top:14px"><button class="auth-link" onclick="showAuth('login')">← Back to Sign In</button></div>
+    </div>
+    <div id="auth-reset" class="hidden">
+      <div class="auth-title">Set new password</div>
+      <div id="reset-err" class="auth-err hidden"></div>
+      <div class="af"><label>New Password</label><div class="af-pw"><input id="r-pw1" type="password" placeholder="Min 8 characters" oninput="pwStrength()"><button class="af-eye" onclick="togglePw('r-pw1',this)">👁</button></div>
+        <div class="pw-bar" id="pw-bar"></div><div class="pw-lbl" id="pw-lbl"></div></div>
+      <div class="af"><label>Confirm Password</label><input id="r-pw2" type="password" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doReset()"></div>
+      <button class="auth-btn" onclick="doReset()">Update Password</button>
+      <div style="text-align:center;margin-top:14px"><button class="auth-link" onclick="showAuth('login')">← Back to Sign In</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="app hidden" id="app">
+  <header class="topbar">
+    <div class="tb-brand"><span class="tb-brand-icon">🏫</span>EduTrack</div>
+    <div class="tb-user" onclick="doLogout()">
+      <div class="tb-avatar" id="tb-av">A</div>
+      <span class="tb-uname" id="tb-name">Admin</span>
+      <span class="tb-signout">· Sign out</span>
+    </div>
+  </header>
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sb-section">Main</div>
+      <button class="sb-btn active" onclick="showView('dashboard')"><span class="sb-icon">📊</span>Dashboard</button>
+      <button class="sb-btn" onclick="showView('students')"><span class="sb-icon">🎒</span>Students</button>
+      <button class="sb-btn" onclick="showView('classes')"><span class="sb-icon">🏛️</span>Classes</button>
+      <button class="sb-btn" onclick="showView('attendance')"><span class="sb-icon">✅</span>Attendance</button>
+      <div class="sb-section">Academic</div>
+      <button class="sb-btn" onclick="showView('gradebook')"><span class="sb-icon">📊</span>Gradebook</button>
+      <button class="sb-btn" onclick="showView('results')"><span class="sb-icon">📄</span>Result Sheets</button>
+      <button class="sb-btn" onclick="showView('subjects')"><span class="sb-icon">📚</span>Subjects</button>
+      <button class="sb-btn" onclick="showView('timetable')"><span class="sb-icon">🗓️</span>Timetable</button>
+      <button class="sb-btn" onclick="showView('cocurricular')"><span class="sb-icon">🏆</span>Co-Curricular</button>
+      <div class="sb-section">Admin</div>
+      <button class="sb-btn" onclick="showView('teachers')"><span class="sb-icon">👩‍🏫</span>Teachers</button>
+      <button class="sb-btn" onclick="showView('fees')"><span class="sb-icon">💳</span>Fees</button>
+      <button class="sb-btn" onclick="showView('exams')"><span class="sb-icon">📝</span>Exam Schedule</button>
+      <button class="sb-btn" onclick="showView('settings')"><span class="sb-icon">⚙️</span>Settings</button>
+    </nav>
+    <main class="content" id="content"></main>
+  </div>
+  <nav class="nav-bottom"><div class="nav-bottom-inner">
+    <button class="nb-btn active" onclick="showView('dashboard')"><span class="nb-icon">📊</span>Home</button>
+    <button class="nb-btn" onclick="showView('students')"><span class="nb-icon">🎒</span>Students</button>
+    <button class="nb-btn" onclick="showView('attendance')"><span class="nb-icon">✅</span>Attend.</button>
+    <button class="nb-btn" onclick="showView('gradebook')"><span class="nb-icon">📊</span>Grades</button>
+    <button class="nb-btn" onclick="showView('fees')"><span class="nb-icon">💳</span>Fees</button>
+  </div></nav>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const CREDS={username:'admin',password:'School@456',email:'admin@edutrack.edu.ng'};
+let currentUser=null;
+
+function showAuth(s){['login','forgot','reset'].forEach(x=>document.getElementById('auth-'+x).classList.add('hidden'));document.getElementById('auth-'+s).classList.remove('hidden');['login-err','forgot-msg','forgot-err','reset-err'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden');});}
+function togglePw(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
+  const err=document.getElementById('login-err');err.classList.add('hidden');
+  if(!u||!p){err.textContent='Please enter username and password.';err.classList.remove('hidden');return;}
+  const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='Signing in…';
+  setTimeout(()=>{
+    if(u===CREDS.username&&p===CREDS.password){currentUser=CREDS;document.getElementById('auth-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('tb-av').textContent='A';showView('dashboard');toast('Welcome to EduTrack! 📚','success');}
+    else{err.textContent='Incorrect username or password.';err.classList.remove('hidden');document.getElementById('l-pass').value='';}
+    btn.disabled=false;btn.textContent='Sign In';},600);
+}
+function doForgot(){
+  const u=document.getElementById('f-user').value.trim();
+  const err=document.getElementById('forgot-err'),ok=document.getElementById('forgot-msg');
+  err.classList.add('hidden');ok.classList.add('hidden');
+  if(!u){err.textContent='Please enter your username.';err.classList.remove('hidden');return;}
+  const btn=document.getElementById('forgot-btn');btn.disabled=true;btn.textContent='Sending…';
+  setTimeout(()=>{if(u===CREDS.username){ok.textContent=`Reset link sent to ${CREDS.email}`;ok.classList.remove('hidden');setTimeout(()=>showAuth('reset'),2000);}else{err.textContent='No account found.';err.classList.remove('hidden');}btn.disabled=false;btn.textContent='Send Reset Link';},800);
+}
+function pwStrength(){const pw=document.getElementById('r-pw1').value;const bar=document.getElementById('pw-bar'),lbl=document.getElementById('pw-lbl');if(!pw){bar.style.cssText='';lbl.textContent='';return;}let s=0;if(pw.length>=8)s++;if(pw.length>=12)s++;if(/[A-Z]/.test(pw))s++;if(/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;const cols=['','#DC2626','#D97706','#D97706','#16A34A','#059669'];const labs=['','Weak','Fair','Good','Strong','Very Strong'];bar.style.cssText=`background:${cols[s]||'#E2E8F0'};height:4px;border-radius:2px;width:${s*20}%;margin-top:5px;transition:.3s`;lbl.textContent=labs[s]||'';lbl.style.color=cols[s]||'#94A3B8';}
+function doReset(){const p1=document.getElementById('r-pw1').value,p2=document.getElementById('r-pw2').value;const err=document.getElementById('reset-err');err.classList.add('hidden');if(p1.length<8){err.textContent='Password must be at least 8 characters.';err.classList.remove('hidden');return;}if(p1!==p2){err.textContent='Passwords do not match.';err.classList.remove('hidden');return;}CREDS.password=p1;showAuth('login');toast('Password updated','success');}
+function doLogout(){currentUser=null;document.getElementById('app').classList.add('hidden');document.getElementById('auth-screen').classList.remove('hidden');showAuth('login');}
+
+/* STATE */
+const S={
+  school:{name:'EduTrack Secondary School',term:'Second Term 2025/2026',session:'2025/2026'},
+  arms:['A','B','C'],
+  classes:['JSS1','JSS2','JSS3','SS1','SS2','SS3'],
+  subjects:{JSS:['English Language','Mathematics','Basic Science','Social Studies','CRK/IRK','Agricultural Science','Computer Studies','French','Physical & Health Edu.','Creative & Cultural Arts'],
+             SS:['English Language','Mathematics','Physics','Chemistry','Biology','Economics','Government','Geography','Further Mathematics','Computer Science']},
+  students:[
+    {id:'s1',name:'Chiamaka Okonkwo',cls:'SS2',arm:'A',gender:'F',dob:'2006-04-12',guardian:'Mrs. Okonkwo',phone:'070-1111-0001',state:'Anambra',fees:'paid'},
+    {id:'s2',name:'Abdulrahman Yusuf',cls:'SS2',arm:'A',gender:'M',dob:'2006-09-20',guardian:'Mr. Yusuf',phone:'070-1111-0002',state:'Kano',fees:'paid'},
+    {id:'s3',name:'Tokunbo Adeyemi',cls:'JSS3',arm:'B',gender:'M',dob:'2008-01-15',guardian:'Mr. Adeyemi',phone:'070-1111-0003',state:'Lagos',fees:'owing'},
+    {id:'s4',name:'Ngozi Eze',cls:'JSS3',arm:'B',gender:'F',dob:'2008-07-08',guardian:'Mrs. Eze',phone:'070-1111-0004',state:'Enugu',fees:'paid'},
+    {id:'s5',name:'Emeka Nkemdirim',cls:'SS1',arm:'A',gender:'M',dob:'2007-03-22',guardian:'Dr. Nkemdirim',phone:'070-1111-0005',state:'Imo',fees:'partial'},
+    {id:'s6',name:'Fatima Aliyu',cls:'SS1',arm:'B',gender:'F',dob:'2007-11-30',guardian:'Alhaji Aliyu',phone:'070-1111-0006',state:'Sokoto',fees:'paid'},
+    {id:'s7',name:'Taiwo Ogundimu',cls:'JSS1',arm:'A',gender:'M',dob:'2010-05-19',guardian:'Mr. Ogundimu',phone:'070-1111-0007',state:'Ogun',fees:'owing'},
+    {id:'s8',name:'Halima Umar',cls:'JSS2',arm:'C',gender:'F',dob:'2009-08-04',guardian:'Mr. Umar',phone:'070-1111-0008',state:'Borno',fees:'paid'},
+  ],
+  teachers:[
+    {id:'t1',name:'Mr. Chukwuemeka Eze',subjects:['Mathematics','Further Mathematics'],classes:['SS1','SS2'],phone:'080-9999-0001',email:'ceze@edutrack.edu.ng'},
+    {id:'t2',name:'Mrs. Aisha Bello',subjects:['English Language'],classes:['JSS1','JSS2','JSS3'],phone:'080-9999-0002',email:'abello@edutrack.edu.ng'},
+    {id:'t3',name:'Mr. Seun Adeyinka',subjects:['Physics','Computer Science'],classes:['SS1','SS2','SS3'],phone:'080-9999-0003',email:'sadeyinka@edutrack.edu.ng'},
+    {id:'t4',name:'Mrs. Perpetual Obi',subjects:['Biology','Basic Science'],classes:['JSS2','SS3'],phone:'080-9999-0004',email:'pobi@edutrack.edu.ng'},
+    {id:'t5',name:'Mr. Kabir Hassan',subjects:['Economics','Government'],classes:['SS1','SS2','SS3'],phone:'080-9999-0005',email:'khassan@edutrack.edu.ng'},
+  ],
+  grades:{
+    's1':{'English Language':{ca1:28,ca2:25,exam:52},'Mathematics':{ca1:30,ca2:28,exam:58},'Physics':{ca1:26,ca2:24,exam:48},'Chemistry':{ca1:22,ca2:20,exam:42},'Biology':{ca1:29,ca2:27,exam:54},'Economics':{ca1:30,ca2:30,exam:60},'Government':{ca1:28,ca2:26,exam:52},'Geography':{ca1:25,ca2:23,exam:48}},
+    's2':{'English Language':{ca1:24,ca2:22,exam:46},'Mathematics':{ca1:30,ca2:30,exam:60},'Physics':{ca1:29,ca2:28,exam:56},'Chemistry':{ca1:27,ca2:25,exam:50},'Biology':{ca1:20,ca2:18,exam:38},'Economics':{ca1:25,ca2:24,exam:48},'Government':{ca1:22,ca2:21,exam:43},'Geography':{ca1:26,ca2:25,exam:50}},
+  },
+  activities:{
+    's1':['Chess Club','Drama Society','Girl Guides'],
+    's2':['Football','Science Club','Student Council'],
+    's5':['Basketball','Debate Club'],
+  },
+  fees:{
+    's1':{total:80000,paid:80000,balance:0},
+    's2':{total:80000,paid:80000,balance:0},
+    's3':{total:80000,paid:0,balance:80000},
+    's4':{total:80000,paid:80000,balance:0},
+    's5':{total:80000,paid:40000,balance:40000},
+    's6':{total:80000,paid:80000,balance:0},
+    's7':{total:65000,paid:0,balance:65000},
+    's8':{total:65000,paid:65000,balance:0},
+  },
+  attendance:{},
+  exams:[
+    {subject:'English Language',date:'2026-03-10',time:'09:00',duration:'3 hrs',classes:['SS1','SS2','SS3','JSS1','JSS2','JSS3']},
+    {subject:'Mathematics',date:'2026-03-11',time:'09:00',duration:'3 hrs',classes:['SS1','SS2','SS3','JSS1','JSS2','JSS3']},
+    {subject:'Physics',date:'2026-03-12',time:'09:00',duration:'2 hrs',classes:['SS1','SS2','SS3']},
+    {subject:'Chemistry',date:'2026-03-13',time:'09:00',duration:'2 hrs',classes:['SS1','SS2','SS3']},
+    {subject:'Biology',date:'2026-03-14',time:'09:00',duration:'2 hrs',classes:['SS2','SS3']},
+    {subject:'Economics',date:'2026-03-17',time:'09:00',duration:'2 hrs',classes:['SS1','SS2','SS3']},
+    {subject:'Government',date:'2026-03-18',time:'09:00',duration:'2 hrs',classes:['SS1','SS2','SS3']},
+    {subject:'Basic Science',date:'2026-03-10',time:'11:00',duration:'2 hrs',classes:['JSS1','JSS2','JSS3']},
+  ],
+  timetable:{
+    Monday:   {periods:['English','Mathematics','Physics','Break','Chemistry','Biology','Games']},
+    Tuesday:  {periods:['Mathematics','English','Economics','Break','Government','Geography','Assembly']},
+    Wednesday:{periods:['Physics','Chemistry','English','Break','Mathematics','Biology','Library']},
+    Thursday: {periods:['Government','Economics','Mathematics','Break','English','Further Maths','Physics']},
+    Friday:   {periods:['English','Biology','Chemistry','Break','Geography','Civic Edu.','Games']},
+  },
+  addStudentOpen:false,
+};
+
+let toastT;
+function toast(msg,type='info'){clearTimeout(toastT);const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type}`;el.classList.remove('hidden');toastT=setTimeout(()=>el.classList.add('hidden'),4000);}
+
+function showView(name){
+  document.querySelectorAll('.sb-btn,.nb-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sb-btn,.nb-btn').forEach(b=>{if(b.getAttribute('onclick')===`showView('${name}')`)b.classList.add('active');});
+  const c=document.getElementById('content');
+  const views={dashboard:vDashboard,students:vStudents,classes:vClasses,attendance:vAttendance,gradebook:vGradebook,results:vResults,subjects:vSubjects,timetable:vTimetable,cocurricular:vCocurricular,teachers:vTeachers,fees:vFees,exams:vExams,settings:vSettings};
+  c.innerHTML=(views[name]||vDashboard)();
+}
+
+const ini=(n)=>n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const fmt=(n)=>Number(n).toLocaleString('en-NG');
+const total=(g)=>(g.ca1||0)+(g.ca2||0)+(g.exam||0);
+const letterGrade=(s)=>s>=75?'A1':s>=70?'B2':s>=65?'B3':s>=60?'C4':s>=55?'C5':s>=50?'C6':s>=45?'D7':s>=40?'E8':'F9';
+const gradeColor=(s)=>s>=75?'badge-green':s>=60?'badge-teal':s>=50?'badge-amber':'badge-red';
+const getSubjects=(cls)=>cls.startsWith('SS')?S.subjects.SS:S.subjects.JSS;
+
+function vDashboard(){
+  const total_s=S.students.length,total_t=S.teachers.length;
+  const owing=S.students.filter(s=>S.fees[s.id]?.balance>0).length;
+  const totalColl=Object.values(S.fees).reduce((a,f)=>a+f.paid,0);
+  return `<div class="page-title">📊 Dashboard</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-icon">🎒</div><div class="stat-num">${total_s}</div><div class="stat-label">Students</div></div>
+    <div class="stat teal"><div class="stat-icon">👩‍🏫</div><div class="stat-num">${total_t}</div><div class="stat-label">Teachers</div></div>
+    <div class="stat amber"><div class="stat-icon">💳</div><div class="stat-num">${owing}</div><div class="stat-label">Fees Owing</div></div>
+    <div class="stat red"><div class="stat-icon">📝</div><div class="stat-num">${S.exams.length}</div><div class="stat-label">Exams Scheduled</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title">📈 Fee Collection</div>
+      <div style="font-size:2rem;font-weight:800;color:var(--green)">₦${fmt(totalColl)}</div>
+      <div style="font-size:.83rem;color:var(--slate-400);margin-top:2px">Total collected this term</div>
+      <div style="margin-top:12px;height:8px;background:var(--slate-100);border-radius:4px;overflow:hidden">
+        <div style="height:100%;background:var(--green-mid);width:${Math.round(totalColl/Object.values(S.fees).reduce((a,f)=>a+f.total,0)*100)}%;border-radius:4px;transition:.5s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--slate-400);margin-top:5px">
+        <span>Collected: ₦${fmt(totalColl)}</span>
+        <span>Outstanding: ₦${fmt(Object.values(S.fees).reduce((a,f)=>a+f.balance,0))}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 Upcoming Exams</div>
+      ${S.exams.slice(0,4).map(e=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--slate-100)">
+        <div style="width:40px;height:40px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span style="font-size:.7rem;font-weight:700;color:var(--green);text-align:center;line-height:1">${new Date(e.date).getDate()}<br>${new Date(e.date).toLocaleString('en',{month:'short'})}</span>
+        </div>
+        <div><div style="font-weight:600;font-size:.85rem">${e.subject}</div><div style="font-size:.75rem;color:var(--slate-400)">${e.time} · ${e.duration}</div></div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🎒 Recent Students</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Name</th><th>Class</th><th>State</th><th>Fees</th></tr></thead>
+      <tbody>${S.students.slice(0,5).map(s=>`<tr>
+        <td><div class="av">${ini(s.name)}</div></td>
+        <td><div style="font-weight:600">${s.name}</div></td>
+        <td><span class="badge badge-teal">${s.cls}${s.arm}</span></td>
+        <td>${s.state}</td>
+        <td><span class="badge ${s.fees==='paid'?'badge-green':s.fees==='partial'?'badge-amber':'badge-red'}">${s.fees}</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+
+function vStudents(){
+  const q=(document.getElementById('sq')?.value||'').toLowerCase();
+  const cf=document.getElementById('scls')?.value||'';
+  let rows=S.students.filter(s=>(!q||`${s.name} ${s.cls}${s.arm}`.toLowerCase().includes(q))&&(!cf||s.cls===cf));
+  return `<div class="hdr"><div class="page-title" style="margin:0">🎒 Students</div>
+  <button class="btn btn-primary" onclick="toggleAddStudent()">+ Admit Student</button></div>
+  <div id="add-student-panel" class="${S.addStudentOpen?'panel':'hidden'}">
+    <div class="panel-title"><span>Admit New Student</span><button class="btn btn-ghost btn-sm" onclick="toggleAddStudent()">✕</button></div>
+    <div id="as-msg" class="inline-msg hidden"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Full Name *</label><input id="as-name" placeholder="Student's full name"></div>
+      <div class="form-group"><label>Class *</label><select id="as-cls">${S.classes.map(c=>`<option>${c}</option>`).join('')}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Arm</label><select id="as-arm">${S.arms.map(a=>`<option>${a}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Gender</label><select id="as-gender"><option value="M">Male</option><option value="F">Female</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Date of Birth</label><input id="as-dob" type="date"></div>
+      <div class="form-group"><label>State of Origin</label><input id="as-state" placeholder="e.g. Lagos"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Guardian *</label><input id="as-guardian" placeholder="Guardian name"></div>
+      <div class="form-group"><label>Guardian Phone</label><input id="as-phone" placeholder="070-XXXX-XXXX"></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-ghost" onclick="toggleAddStudent()">Cancel</button>
+    <button class="btn btn-primary" onclick="admitStudent()">✓ Admit Student</button></div>
+  </div>
+  <div class="card">
+    <div class="sb">
+      <input id="sq" placeholder="Search students…" oninput="showView('students')" style="flex:1;min-width:160px">
+      <select id="scls" onchange="showView('students')">
+        <option value="">All classes</option>${S.classes.map(c=>`<option>${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Name</th><th>Class</th><th>Gender</th><th>State</th><th>Guardian</th><th>Fees</th><th>Action</th></tr></thead>
+      <tbody>${rows.map(s=>`<tr>
+        <td><div class="av">${ini(s.name)}</div></td>
+        <td><div style="font-weight:600">${s.name}</div><div style="font-size:.75rem;color:var(--slate-400)">${s.dob}</div></td>
+        <td><span class="badge badge-teal">${s.cls}${s.arm}</span></td>
+        <td>${s.gender==='M'?'Male':'Female'}</td>
+        <td>${s.state}</td>
+        <td><div style="font-size:.83rem">${s.guardian}</div><div style="font-size:.75rem;color:var(--slate-400)">${s.phone}</div></td>
+        <td><span class="badge ${s.fees==='paid'?'badge-green':s.fees==='partial'?'badge-amber':'badge-red'}">${s.fees}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="viewStudentResult('${s.id}')">📄 Result</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+    <div style="padding:8px 0 0;font-size:.82rem;color:var(--slate-400)">${rows.length} student${rows.length!==1?'s':''}</div>
+  </div>`;
+}
+function toggleAddStudent(){S.addStudentOpen=!S.addStudentOpen;showView('students');}
+function admitStudent(){
+  const name=document.getElementById('as-name')?.value.trim(),guardian=document.getElementById('as-guardian')?.value.trim();
+  const msg=document.getElementById('as-msg');msg.classList.add('hidden');
+  if(!name||!guardian){msg.className='inline-msg err';msg.textContent='Name and guardian are required.';msg.classList.remove('hidden');return;}
+  const id='s'+Date.now();
+  const cls=document.getElementById('as-cls')?.value||'JSS1';
+  S.students.push({id,name,cls,arm:document.getElementById('as-arm')?.value||'A',gender:document.getElementById('as-gender')?.value||'M',dob:document.getElementById('as-dob')?.value||'',guardian,phone:document.getElementById('as-phone')?.value||'',state:document.getElementById('as-state')?.value||'',fees:'owing'});
+  S.fees[id]={total:cls.startsWith('SS')?80000:65000,paid:0,balance:cls.startsWith('SS')?80000:65000};
+  S.addStudentOpen=false;toast(`${name} admitted to ${cls}`,'success');showView('students');
+}
+
+function vClasses(){
+  return `<div class="page-title">🏛️ Classes</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+  ${S.classes.map(cls=>{const students=S.students.filter(s=>s.cls===cls);const male=students.filter(s=>s.gender==='M').length;const female=students.filter(s=>s.gender==='F').length;
+  return`<div class="card" style="cursor:pointer;border-top:4px solid var(--green)" onclick="showClassDetail('${cls}')">
+    <div style="font-size:1.4rem;margin-bottom:6px">${cls.startsWith('SS')?'🎓':'🏫'}</div>
+    <div style="font-weight:700;font-size:1.1rem">${cls}</div>
+    <div style="font-size:.82rem;color:var(--slate-500);margin-top:4px">${S.arms.map(a=>`<span class="badge badge-teal" style="margin-right:3px">${cls}${a}: ${S.students.filter(s=>s.cls===cls&&s.arm===a).length}</span>`).join('')}</div>
+    <div style="font-size:.8rem;color:var(--slate-400);margin-top:6px">Total: ${students.length} · Boys: ${male} · Girls: ${female}</div>
+    <div style="font-size:.78rem;color:var(--slate-400);margin-top:2px">${cls.startsWith('SS')?'Senior Secondary':'Junior Secondary'}</div>
+  </div>`}).join('')}
+  </div>`;
+}
+function showClassDetail(cls){
+  const students=S.students.filter(s=>s.cls===cls);
+  document.getElementById('content').innerHTML=`
+  <button class="btn btn-ghost" style="margin-bottom:14px" onclick="showView('classes')">← Back</button>
+  <div class="page-title">🏛️ ${cls} Details</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-icon">🎒</div><div class="stat-num">${students.length}</div><div class="stat-label">Total Students</div></div>
+    <div class="stat teal"><div class="stat-icon">👦</div><div class="stat-num">${students.filter(s=>s.gender==='M').length}</div><div class="stat-label">Male</div></div>
+    <div class="stat amber"><div class="stat-icon">👧</div><div class="stat-num">${students.filter(s=>s.gender==='F').length}</div><div class="stat-label">Female</div></div>
+  </div>
+  <div class="card"><div class="card-title">Subjects offered in ${cls}</div>
+    <div>${getSubjects(cls).map(s=>`<span style="display:inline-block;margin:3px;padding:4px 10px;background:var(--green-light);border-radius:20px;font-size:.82rem;font-weight:600;color:var(--green)">${s}</span>`).join('')}</div>
+  </div>
+  <div class="card"><div class="card-title">Students</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>Name</th><th>Arm</th><th>Gender</th><th>Fees</th></tr></thead>
+    <tbody>${students.map(s=>`<tr><td><div class="av">${ini(s.name)}</div></td>
+      <td><div style="font-weight:600">${s.name}</div></td>
+      <td><span class="badge badge-teal">${cls}${s.arm}</span></td>
+      <td>${s.gender==='M'?'Male':'Female'}</td>
+      <td><span class="badge ${s.fees==='paid'?'badge-green':s.fees==='partial'?'badge-amber':'badge-red'}">${s.fees}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+
+function vAttendance(){
+  const today=new Date().toISOString().slice(0,10);
+  const cls=document.getElementById('att-cls')?.value||S.classes[4];
+  const arm=document.getElementById('att-arm')?.value||S.arms[0];
+  const date=document.getElementById('att-date')?.value||today;
+  const key=`${cls}${arm}|${date}`;
+  const students=S.students.filter(s=>s.cls===cls&&s.arm===arm);
+  const statuses=['P','A','L','E'];const labels={P:'Present',A:'Absent',L:'Late',E:'Excused'};const colors={P:'badge-green',A:'badge-red',L:'badge-amber',E:'badge-purple'};
+  const summary=statuses.reduce((acc,s)=>{acc[s]=students.filter(st=>(S.attendance[`${key}|${st.id}`]||'none')===s).length;return acc;},{});
+  return `<div class="page-title">✅ Attendance Register</div>
+  <div class="card">
+    <div class="sb">
+      <select id="att-cls" onchange="showView('attendance')">${S.classes.map(c=>`<option ${c===cls?'selected':''}>${c}</option>`).join('')}</select>
+      <select id="att-arm" onchange="showView('attendance')">${S.arms.map(a=>`<option ${a===arm?'selected':''}>${a}</option>`).join('')}</select>
+      <input id="att-date" type="date" value="${date}" onchange="showView('attendance')">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-left:auto">${statuses.map(s=>`<span class="badge ${colors[s]}">${s}: ${summary[s]}</span>`).join('')}</div>
+    </div>
+    ${students.length?`<div class="table-wrap"><table>
+      <thead><tr><th></th><th>Name</th>${statuses.map(s=>`<th>${labels[s]}</th>`).join('')}<th>Status</th></tr></thead>
+      <tbody>${students.map(s=>{const cur=S.attendance[`${key}|${s.id}`]||'none';return`<tr>
+        <td><div class="av">${ini(s.name)}</div></td><td style="font-weight:600">${s.name}</td>
+        ${statuses.map(st=>`<td><input type="radio" name="att-${s.id}" value="${st}" ${cur===st?'checked':''} onchange="markAtt('${key}','${s.id}','${st}')"></td>`).join('')}
+        <td><span class="badge ${cur==='P'?'badge-green':cur==='A'?'badge-red':cur==='L'?'badge-amber':cur==='E'?'badge-purple':'badge-slate'}">${cur==='none'?'—':cur}</span></td>
+      </tr>`}).join('')}</tbody></table></div>
+    <div class="form-actions" style="margin-top:10px">
+      <button class="btn btn-success" onclick="markAllPresent2('${key}','${cls}','${arm}')">✅ Mark All Present</button>
+      <button class="btn btn-primary" onclick="toast('Attendance saved for ${cls}${arm} on ${date}','success')">💾 Save</button>
+    </div>`:`<div class="empty"><div class="empty-icon">📭</div><div>No students in ${cls}${arm}</div></div>`}
+  </div>`;
+}
+function markAtt(key,sid,status){S.attendance[`${key}|${sid}`]=status;}
+function markAllPresent2(key,cls,arm){S.students.filter(s=>s.cls===cls&&s.arm===arm).forEach(s=>{S.attendance[`${key}|${s.id}`]='P';});showView('attendance');toast('All marked Present','success');}
+
+function vGradebook(){
+  const sel=document.getElementById('gb-s')?.value||'s1';
+  const stu=S.students.find(x=>x.id===sel)||S.students[0];
+  const g=S.grades[sel]||{};
+  const subs=getSubjects(stu.cls);
+  return `<div class="page-title">📊 Gradebook (Weighted: CA1+CA2+Exam)</div>
+  <div class="card">
+    <div class="sb">
+      <select id="gb-s" onchange="showView('gradebook')" style="min-width:220px">
+        ${S.students.map(s=>`<option value="${s.id}" ${s.id===sel?'selected':''}>${s.name} (${s.cls}${s.arm})</option>`).join('')}
+      </select>
+    </div>
+    <div class="table-wrap gb-table"><table>
+      <thead><tr><th>Subject</th><th>CA1<br><small>/30</small></th><th>CA2<br><small>/30</small></th><th>Exam<br><small>/60</small></th><th>Total<br><small>/120</small></th><th>%</th><th>Grade</th></tr></thead>
+      <tbody>${subs.map(s=>{const rec=g[s]||{};const tot=total(rec);const pct=rec.exam?Math.round(tot/120*100):0;return`<tr>
+        <td style="font-weight:600;font-size:.85rem">${s}</td>
+        <td><input type="number" min="0" max="30" value="${rec.ca1||''}" placeholder="—" onchange="saveGrade2('${sel}','${s}','ca1',this.value)"></td>
+        <td><input type="number" min="0" max="30" value="${rec.ca2||''}" placeholder="—" onchange="saveGrade2('${sel}','${s}','ca2',this.value)"></td>
+        <td><input type="number" min="0" max="60" value="${rec.exam||''}" placeholder="—" onchange="saveGrade2('${sel}','${s}','exam',this.value)"></td>
+        <td style="font-weight:700">${tot||'—'}</td>
+        <td>${pct?`<div style="display:flex;align-items:center;gap:6px"><div class="weight-bar" style="width:${pct}px;max-width:60px"></div><span style="font-size:.8rem">${pct}%</span></div>`:'—'}</td>
+        <td>${pct?`<span class="badge ${gradeColor(pct)}">${letterGrade(pct)}</span>`:'—'}</td>
+      </tr>`}).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+function saveGrade2(sid,subject,component,val){if(!S.grades[sid])S.grades[sid]={};if(!S.grades[sid][subject])S.grades[sid][subject]={};S.grades[sid][subject][component]=parseInt(val)||0;toast(`${subject} ${component.toUpperCase()} saved`,'success');}
+
+function viewStudentResult(sid){
+  const stu=S.students.find(x=>x.id===sid);
+  if(!stu){showView('results');return;}
+  const g=S.grades[sid]||{};
+  const subs=getSubjects(stu.cls);
+  const scored=subs.filter(s=>g[s]?.exam);
+  const avg=scored.length?Math.round(scored.reduce((a,s)=>{const t=total(g[s]);return a+(t/120*100);},0)/scored.length):0;
+  document.getElementById('content').innerHTML=`
+  <button class="btn btn-ghost" style="margin-bottom:14px" onclick="showView('results')">← Back to Results</button>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button class="btn btn-primary" onclick="toast('Result sent to ${stu.guardian}','success')">📧 Email Guardian</button>
+    <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+  </div>
+  <div class="rs-card">
+    <div class="rs-hdr">
+      <div><div style="font-weight:800;font-size:1.1rem">🏫 ${S.school.name}</div><div style="font-size:.82rem;opacity:.75">${S.school.term} · ${S.school.session}</div></div>
+      <div style="text-align:right"><div style="font-size:1rem;font-weight:800">${stu.name}</div><div style="font-size:.85rem;opacity:.8">${stu.cls}${stu.arm} · ${stu.gender==='M'?'Male':'Female'}</div></div>
+    </div>
+    <div class="rs-table">
+      <div class="rs-row hd"><span>Subject</span><span class="rs-center">CA1<br>/30</span><span class="rs-center">CA2<br>/30</span><span class="rs-center">Exam<br>/60</span><span class="rs-center">Total<br>/120</span><span class="rs-center">%</span><span class="rs-center">Grade</span></div>
+      ${subs.map(s=>{const rec=g[s]||{};const tot=total(rec);const pct=rec.exam?Math.round(tot/120*100):0;return`<div class="rs-row">
+        <span>${s}</span><span class="rs-center">${rec.ca1||'—'}</span><span class="rs-center">${rec.ca2||'—'}</span><span class="rs-center">${rec.exam||'—'}</span>
+        <span class="rs-center" style="font-weight:700">${tot||'—'}</span><span class="rs-center">${pct?pct+'%':'—'}</span>
+        <span class="rs-center">${pct?letterGrade(pct):'—'}</span>
+      </div>`}).join('')}
+    </div>
+    ${avg?`<div style="padding:12px 14px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between;font-size:.85rem;flex-wrap:wrap;gap:8px">
+      <span>Average: <strong>${avg}%</strong></span><span>Grade: <strong>${letterGrade(avg)}</strong></span>
+      <span>Remark: <strong>${avg>=65?'Pass — Promoted':'Referred — Needs Improvement'}</strong></span>
+    </div>`:''}
+  </div>
+  <div class="card"><div class="card-title">✍️ Class Teacher Remarks</div>
+    <textarea style="width:100%;padding:10px;border:1.5px solid var(--slate-200);border-radius:var(--radius-sm);font-size:.88rem;resize:vertical;min-height:65px">${avg>=65?`${stu.name} has demonstrated good academic performance this term. Keep it up!`:`${stu.name} needs to improve in several subjects. Additional coaching is recommended.`}</textarea>
+    <div class="form-actions"><button class="btn btn-primary" onclick="toast('Remarks saved','success')">💾 Save</button></div>
+  </div>`;
+}
+
+function vResults(){
+  return `<div class="page-title">📄 Result Sheets</div>
+  <div class="card"><div class="sb">
+    <select id="rs-cls" style="min-width:130px">
+      ${S.classes.map(c=>`<option>${c}</option>`).join('')}
+    </select>
+    <button class="btn btn-primary" onclick="toast('Class result sheet generated','success')">📊 Generate Class Result</button>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>Student</th><th>Class</th><th>Subjects</th><th>Avg.</th><th>Remark</th><th>Action</th></tr></thead>
+    <tbody>${S.students.map(stu=>{
+      const g=S.grades[stu.id]||{};const subs=getSubjects(stu.cls);const scored=subs.filter(s=>g[s]?.exam);
+      const avg=scored.length?Math.round(scored.reduce((a,s)=>a+(total(g[s])/120*100),0)/scored.length):0;
+      return`<tr>
+        <td><div class="av">${ini(stu.name)}</div></td>
+        <td><div style="font-weight:600">${stu.name}</div></td>
+        <td><span class="badge badge-teal">${stu.cls}${stu.arm}</span></td>
+        <td><span class="badge badge-slate">${scored.length}/${subs.length}</span></td>
+        <td>${avg?`<span class="badge ${gradeColor(avg)}">${avg}%</span>`:'—'}</td>
+        <td style="font-size:.82rem">${avg>=65?'✅ Promoted':avg?'⚠️ Borderline':'—'}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="viewStudentResult('${stu.id}')">📄 View</button></td>
+      </tr>`;}).join('')}</tbody>
+  </table></div></div>`;
+}
+
+function vSubjects(){
+  return `<div class="page-title">📚 Subjects</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card"><div class="card-title">📘 Junior Secondary (JSS1-JSS3)</div>
+      ${S.subjects.JSS.map(s=>`<div style="padding:7px 0;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:8px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0"></span>
+        <span style="font-size:.87rem">${s}</span></div>`).join('')}
+    </div>
+    <div class="card"><div class="card-title">📗 Senior Secondary (SS1-SS3)</div>
+      ${S.subjects.SS.map(s=>`<div style="padding:7px 0;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:8px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0"></span>
+        <span style="font-size:.87rem">${s}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function vTimetable(){
+  const days=Object.keys(S.timetable);
+  const times=['8:00–8:40','8:40–9:20','9:20–10:00','10:00–10:20','10:20–11:00','11:00–11:40','11:40–12:20'];
+  return `<div class="page-title">🗓️ Weekly Timetable — SS2A</div>
+  <div class="card" style="overflow-x:auto"><table style="min-width:550px">
+    <thead><tr><th>Period</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead>
+    <tbody>${times.map((t,i)=>`<tr>
+      <td style="font-size:.75rem;color:var(--slate-400);font-weight:600;white-space:nowrap">${t}</td>
+      ${days.map(d=>{const s=(S.timetable[d].periods||[])[i]||'—';return`<td><span style="font-size:.82rem;font-weight:${s==='Break'?700:500};color:${s==='Break'?'var(--amber)':s==='Assembly'||s==='Games'||s==='Library'?'var(--teal)':'var(--text)'}">${s}</span></td>`;}).join('')}
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function vCocurricular(){
+  const activities=['Football','Basketball','Volleyball','Chess Club','Drama Society','Science Club','Debate Club','Press Club','Girl Guides','Boy Scouts','Art Club','Music Band','Student Council','Red Cross'];
+  return `<div class="page-title">🏆 Co-Curricular Activities</div>
+  <div class="card"><div class="card-title">📋 Available Activities</div>
+    <div>${activities.map(a=>`<span class="activity-chip">${a}</span>`).join('')}</div>
+  </div>
+  <div class="card"><div class="card-title">🎒 Student Activities</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Student</th><th>Class</th><th>Activities</th><th>Action</th></tr></thead>
+    <tbody>${S.students.map(stu=>`<tr>
+      <td><div style="font-weight:600">${stu.name}</div></td>
+      <td><span class="badge badge-teal">${stu.cls}${stu.arm}</span></td>
+      <td>${(S.activities[stu.id]||[]).map(a=>`<span class="activity-chip">${a}</span>`).join('') || '<span style="color:var(--slate-400);font-size:.82rem">None yet</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="addActivity('${stu.id}','${stu.name}')">+ Add</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+function addActivity(sid,name){
+  const act=document.getElementById(`act-sel-${sid}`)?.value;
+  const activities=['Football','Basketball','Chess Club','Drama Society','Science Club','Debate Club','Girl Guides','Boy Scouts','Art Club'];
+  const chosen=activities[Math.floor(Math.random()*activities.length)];
+  if(!S.activities[sid])S.activities[sid]=[];
+  if(!S.activities[sid].includes(chosen)){S.activities[sid].push(chosen);toast(`${name} added to ${chosen}`,'success');showView('cocurricular');}
+  else{toast(`${name} is already in ${chosen}`,'info');}
+}
+
+function vTeachers(){
+  return `<div class="hdr"><div class="page-title" style="margin:0">👩‍🏫 Teachers</div>
+  <button class="btn btn-primary" onclick="toast('Add teacher coming soon','info')">+ Add Teacher</button></div>
+  <div class="card"><div class="table-wrap"><table>
+    <thead><tr><th></th><th>Name</th><th>Subjects</th><th>Classes</th><th>Contact</th></tr></thead>
+    <tbody>${S.teachers.map(t=>`<tr>
+      <td><div class="av">${ini(t.name)}</div></td>
+      <td><div style="font-weight:600">${t.name}</div><div style="font-size:.75rem;color:var(--slate-400)">${t.email}</div></td>
+      <td>${t.subjects.map(s=>`<span class="badge badge-green" style="margin:2px">${s}</span>`).join('')}</td>
+      <td>${t.classes.map(c=>`<span class="badge badge-teal" style="margin:2px">${c}</span>`).join('')}</td>
+      <td style="font-size:.83rem">${t.phone}</td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+
+function vFees(){
+  const totalBilled=Object.values(S.fees).reduce((a,f)=>a+f.total,0);
+  const totalPaid=Object.values(S.fees).reduce((a,f)=>a+f.paid,0);
+  const totalOwing=Object.values(S.fees).reduce((a,f)=>a+f.balance,0);
+  return `<div class="page-title">💳 Fees Management</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-icon">💰</div><div class="stat-num">₦${fmt(totalBilled)}</div><div class="stat-label">Total Billed</div></div>
+    <div class="stat teal"><div class="stat-icon">✅</div><div class="stat-num">₦${fmt(totalPaid)}</div><div class="stat-label">Collected</div></div>
+    <div class="stat amber"><div class="stat-icon">⏳</div><div class="stat-num">₦${fmt(totalOwing)}</div><div class="stat-label">Outstanding</div></div>
+  </div>
+  <div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>Student</th><th>Class</th><th>Term Fee</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${S.students.map(stu=>{const f=S.fees[stu.id]||{};return`<tr>
+      <td><div style="font-weight:600">${stu.name}</div></td>
+      <td><span class="badge badge-teal">${stu.cls}${stu.arm}</span></td>
+      <td>₦${fmt(f.total||0)}</td><td>₦${fmt(f.paid||0)}</td>
+      <td style="font-weight:${f.balance>0?700:400};color:${f.balance>0?'var(--red)':'var(--green)'}">₦${fmt(f.balance||0)}</td>
+      <td><span class="badge ${stu.fees==='paid'?'badge-green':stu.fees==='partial'?'badge-amber':'badge-red'}">${stu.fees}</span></td>
+      <td><button class="btn btn-success btn-sm" onclick="recPay2('${stu.id}')">+ Pay</button></td>
+    </tr>`}).join('')}</tbody>
+  </table></div></div>`;
+}
+function recPay2(sid){
+  const stu=S.students.find(x=>x.id===sid);const f=S.fees[sid];if(!f||!stu)return;
+  if(f.balance<=0){toast(`${stu.name}'s fees are fully paid`,'info');return;}
+  const amt=50000; // default payment amount — inline input in production
+  if(!amt)return;
+  const pay=Math.min(amt,f.balance);f.paid+=pay;f.balance-=pay;
+  stu.fees=f.balance===0?'paid':f.paid>0?'partial':'owing';
+  toast(`₦${fmt(pay)} recorded for ${stu.name}`,'success');showView('fees');
+}
+
+function vExams(){
+  return `<div class="page-title">📝 Exam Schedule</div>
+  <div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Subject</th><th>Time</th><th>Duration</th><th>Classes</th></tr></thead>
+    <tbody>${S.exams.sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr>
+      <td><div style="font-weight:600">${new Date(e.date).toDateString()}</div></td>
+      <td style="font-weight:600">${e.subject}</td>
+      <td>${e.time}</td><td>${e.duration}</td>
+      <td>${e.classes.map(c=>`<span class="badge badge-teal" style="margin:2px">${c}</span>`).join('')}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+  <div class="form-actions"><button class="btn btn-primary" onclick="toast('Exam timetable sent to all parents','success')">📱 Notify All Parents</button></div></div>`;
+}
+
+function vSettings(){
+  return `<div class="page-title">⚙️ Settings</div>
+  <div class="card" style="max-width:540px">
+    <div class="card-title">🏫 School Information</div>
+    <div class="form-group"><label>School Name</label><input id="set-name" value="${S.school.name}"></div>
+    <div class="form-group"><label>Current Term</label><input id="set-term" value="${S.school.term}"></div>
+    <div class="form-group"><label>Academic Session</label><input id="set-sess" value="${S.school.session}"></div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="saveSettings2()">💾 Save</button></div>
+  </div>
+  <div class="card" style="max-width:540px">
+    <div class="card-title">🔑 Change Password</div>
+    <div id="pw-msg" class="inline-msg hidden"></div>
+    <div class="form-group"><label>Current Password</label><input id="sc-cur" type="password"></div>
+    <div class="form-group"><label>New Password</label><input id="sc-new" type="password"></div>
+    <div class="form-group"><label>Confirm New Password</label><input id="sc-con" type="password"></div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="changePw2()">🔑 Update</button></div>
+  </div>`;
+}
+function saveSettings2(){S.school.name=document.getElementById('set-name')?.value||S.school.name;S.school.term=document.getElementById('set-term')?.value||S.school.term;S.school.session=document.getElementById('set-sess')?.value||S.school.session;toast('Settings saved','success');}
+function changePw2(){
+  const cur=document.getElementById('sc-cur')?.value,nw=document.getElementById('sc-new')?.value,cn=document.getElementById('sc-con')?.value;
+  const msg=document.getElementById('pw-msg');msg.classList.add('hidden');
+  if(cur!==CREDS.password){msg.className='inline-msg err';msg.textContent='Current password incorrect.';msg.classList.remove('hidden');return;}
+  if(nw.length<8){msg.className='inline-msg err';msg.textContent='Password must be 8+ characters.';msg.classList.remove('hidden');return;}
+  if(nw!==cn){msg.className='inline-msg err';msg.textContent='Passwords do not match.';msg.classList.remove('hidden');return;}
+  CREDS.password=nw;msg.className='inline-msg ok';msg.textContent='✅ Password updated.';msg.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
